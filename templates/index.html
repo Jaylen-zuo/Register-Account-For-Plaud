@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plaud 自动注册工具</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <h1>⚡ Plaud 自动注册工具</h1>
+    <span class="badge">Web UI</span>
+    <span class="badge" id="env-badge" style="margin-left:auto">未运行</span>
+  </header>
+
+  <div class="grid">
+
+    <!-- Left: Config panel -->
+    <div>
+      <div class="card">
+        <div class="card-title">运行配置</div>
+
+        <div class="field">
+          <label>运行环境</label>
+          <select id="env">
+            <option value="test">🧪 测试环境 (api-dev.plaud.ai)</option>
+            <option value="prod">🚀 正式环境 (api.plaud.ai)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>临时邮箱提供商</label>
+          <select id="provider">
+            <option value="guerrilla">Guerrilla Mail（主力，稳定无限速）</option>
+            <option value="mailtm">mail.tm（备用，有并发速率限制）</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>注册账号数量</label>
+          <input type="number" id="count" value="1" min="1" max="50">
+        </div>
+
+        <div class="field">
+          <label>固定密码</label>
+          <div class="pw-field">
+            <input type="text" value="Abc123456" readonly>
+            <span class="pw-badge">已固定</span>
+          </div>
+        </div>
+
+        <div style="margin-top:20px">
+          <button class="btn btn-primary" id="start-btn" onclick="startTask()">
+            <span id="btn-icon">▶</span>
+            <span id="btn-text">开始注册</span>
+          </button>
+          <button class="btn btn-stop" id="stop-btn" style="display:none;margin-top:8px" onclick="stopTask()">
+            ⏹ 停止任务
+          </button>
+        </div>
+
+        <div id="progress-wrap" style="display:none;margin-top:16px">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="progress-label" id="progress-label">准备中…</div>
+        </div>
+      </div>
+
+      <!-- Stats card -->
+      <div class="card" id="stats-card" style="margin-top:16px;display:none">
+        <div class="card-title">执行统计</div>
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-num" id="s-total">0</div>
+            <div class="stat-label">总计</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num stat-ok" id="s-ok">0</div>
+            <div class="stat-label">成功</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num stat-fail" id="s-fail">0</div>
+            <div class="stat-label">失败</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num stat-accent" id="s-rate">0%</div>
+            <div class="stat-label">成功率</div>
+          </div>
+        </div>
+        <button class="btn btn-export btn-sm" onclick="exportJSON()">⬇ 导出 JSON</button>
+      </div>
+    </div>
+
+    <!-- Right: Log panel -->
+    <div class="card log-panel">
+      <div class="log-header">
+        <div class="card-title" style="margin-bottom:0">执行日志</div>
+        <button class="btn btn-sm btn-clear" onclick="clearLogs()">清空</button>
+      </div>
+      <div id="log-box"><div class="log-placeholder">等待任务启动…</div></div>
+    </div>
+
+  </div>
+
+  <!-- Results table -->
+  <div class="card" id="results-card" style="margin-top:16px;display:none">
+    <div class="card-title">注册结果</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>邮箱</th><th>密码</th><th>Token</th>
+            <th>国家</th><th>环境</th><th>状态</th>
+          </tr>
+        </thead>
+        <tbody id="result-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
