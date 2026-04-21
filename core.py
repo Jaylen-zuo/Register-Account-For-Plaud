@@ -218,14 +218,13 @@ class PlaudRegistrar:
 
             self.log("INFO", "Step5 提交验证码完成注册…")
             enc_pw, is_enc = encrypt_password(self.password, self.pub_key)
-            try:
-                d5 = self._post("/auth/verify-code", json={"code": code, "token": jwt, "password": enc_pw, "password_encrypted": is_enc, "user_area": self.country, "r": random.random()})
-                if d5.get("status") == 0:
-                    self._pw_val, self._pw_enc = enc_pw, is_enc
-                else:
-                    raise RuntimeError(str(d5))
-            except Exception as e:
-                self.log("WARN", f"加密密码失败({e})，尝试明文…")
+            d5 = None
+            if is_enc:
+                r5 = self._post("/auth/verify-code", json={"code": code, "token": jwt, "password": enc_pw, "password_encrypted": True, "user_area": self.country, "r": random.random()})
+                if r5.get("status") == 0:
+                    d5 = r5
+                    self._pw_val, self._pw_enc = enc_pw, True
+            if d5 is None:
                 d5 = self._post("/auth/verify-code", json={"code": code, "token": jwt, "password": self.password, "password_encrypted": False, "user_area": self.country, "r": random.random()})
                 if d5.get("status") != 0: raise RuntimeError(f"verify-code: {d5}")
                 self._pw_val, self._pw_enc = self.password, False
