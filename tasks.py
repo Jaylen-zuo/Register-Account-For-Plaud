@@ -20,11 +20,13 @@ def run_task(task_id: str, cfg: dict):
     use_guerrilla = cfg.get("provider", "guerrilla") != "mailtm"
     password = cfg.get("password", PASSWORD) or PASSWORD
 
+    def is_stopped(): return bool(_tasks[task_id].get("stop"))
+
     send("start", total=count, env=env_label, provider="Guerrilla Mail" if use_guerrilla else "mail.tm")
     log("INFO", f"开始注册 {count} 个账号 | 环境: {env_label}")
 
     for idx in range(count):
-        if _tasks[task_id].get("stop"):
+        if is_stopped():
             log("WARN", "任务已被停止")
             break
 
@@ -49,15 +51,16 @@ def run_task(task_id: str, cfg: dict):
             send("result", result=result)
             continue
 
-        result = registrar.register(email, provider)
+        result = registrar.register(email, provider, stop_fn=is_stopped)
         results.append(result)
         send("result", result=result)
 
-        if idx < count - 1:
+        if idx < count - 1 and not is_stopped():
             time.sleep(2)
 
     success = sum(1 for r in results if r["status"] == "SUCCESS")
-    log("INFO" if success < count else "OK", f"完成：{success}/{count} 成功")
-    send("done", success=success, total=count, results=results)
+    actual = len(results)
+    log("INFO" if success < actual else "OK", f"完成：{success}/{actual} 成功")
+    send("done", success=success, total=actual, results=results)
     _tasks[task_id]["done"] = True
     q.put(None)

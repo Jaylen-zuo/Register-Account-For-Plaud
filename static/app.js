@@ -1,4 +1,4 @@
-let taskId = null, es = null, allResults = [], running = false, resultsOpen = false;
+let taskId = null, es = null, allResults = [], running = false, resultsOpen = true;
 
 async function startTask() {
   const cfg = {
@@ -8,13 +8,6 @@ async function startTask() {
     password: document.getElementById('password').value.trim() || 'Abc123456',
   };
   clearLogs();
-  allResults = [];
-  resultsOpen = false;
-  document.getElementById('result-body').innerHTML = '';
-  document.getElementById('results-card').style.display = 'none';
-  document.getElementById('results-body-wrap').style.display = 'none';
-  document.getElementById('results-toggle').textContent = '展开';
-  document.getElementById('result-count').textContent = '0 条';
   document.getElementById('stats-card').style.display = 'none';
   setBusy(true);
 
@@ -49,6 +42,9 @@ function handleEvent(d) {
     addResultRow(d.result, allResults.length);
     document.getElementById('result-count').textContent = allResults.length + ' 条';
     document.getElementById('results-card').style.display = 'block';
+    document.getElementById('results-body-wrap').style.display = resultsOpen ? 'block' : 'none';
+    document.getElementById('results-toggle').textContent = resultsOpen ? '收起' : '展开';
+    updateStats();
   } else if (d.type === 'start') {
     document.getElementById('env-badge').textContent = `${d.env} | ${d.provider}`;
     document.getElementById('progress-wrap').style.display = 'block';
@@ -56,7 +52,7 @@ function handleEvent(d) {
   } else if (d.type === 'done') {
     es.close();
     setBusy(false);
-    showStats(d.success, d.total);
+    updateStats();
     document.getElementById('progress-fill').style.width = '100%';
     document.getElementById('progress-label').textContent = `完成：${d.success}/${d.total} 成功`;
     toast(`注册完成！成功 ${d.success}/${d.total}`);
@@ -89,13 +85,15 @@ function addResultRow(r, idx) {
   tb.appendChild(tr);
 }
 
-function showStats(ok, total) {
-  const fail = total - ok;
+function updateStats() {
+  const total = allResults.length;
+  const ok    = allResults.filter(r => r.status === 'SUCCESS').length;
+  const fail  = total - ok;
   document.getElementById('s-total').textContent = total;
   document.getElementById('s-ok').textContent    = ok;
   document.getElementById('s-fail').textContent  = fail;
   document.getElementById('s-rate').textContent  = total ? Math.round(ok / total * 100) + '%' : '0%';
-  document.getElementById('stats-card').style.display = 'block';
+  document.getElementById('stats-card').style.display = total > 0 ? 'block' : 'none';
 }
 
 function setBusy(on) {

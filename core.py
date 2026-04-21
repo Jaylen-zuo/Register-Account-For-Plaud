@@ -76,9 +76,10 @@ class GuerrillaMailProvider:
         self.sid, self.email = d["sid_token"], d["email_addr"]
         return self.email
 
-    def wait_for_code(self, timeout=120, log=None) -> Optional[str]:
+    def wait_for_code(self, timeout=120, log=None, stop_fn=None) -> Optional[str]:
         start, seen, seq = time.time(), set(), 0
         while time.time() - start < timeout:
+            if stop_fn and stop_fn(): return None
             if log: log("INFO", f"等待验证码中… ({int(time.time()-start)}s/{timeout}s)")
             try:
                 items = self.s.get(self.BASE, params={"f": "check_email", "seq": seq, "sid_token": self.sid}, timeout=15).json().get("list", [])
@@ -118,9 +119,10 @@ class MailTMProvider:
         self.s.headers["Authorization"] = f"Bearer {tok}"
         return self.email
 
-    def wait_for_code(self, timeout=120, log=None) -> Optional[str]:
+    def wait_for_code(self, timeout=120, log=None, stop_fn=None) -> Optional[str]:
         start, seen = time.time(), set()
         while time.time() - start < timeout:
+            if stop_fn and stop_fn(): return None
             if log: log("INFO", f"等待验证码中… ({int(time.time()-start)}s/{timeout}s)")
             try:
                 for msg in self.s.get(f"{self.BASE}/messages", timeout=15).json().get("hydra:member", []):
@@ -176,7 +178,7 @@ class PlaudRegistrar:
         self.log("INFO", f"已切换至区域节点，国家: {self.country}")
         return True
 
-    def register(self, email: str, provider) -> dict:
+    def register(self, email: str, provider, stop_fn=None) -> dict:
         result = {
             "email": email, "password": self.password, "token": None,
             "country": "N/A", "env": "测试" if "dev" in self.base else "正式",
@@ -203,8 +205,9 @@ class PlaudRegistrar:
             self.log("OK", "验证码已发送，等待邮件…")
 
             self.log("INFO", "Step4 等待验证码（最多120秒）…")
-            code = provider.wait_for_code(timeout=120, log=self.log)
-            if not code: raise RuntimeError("等待验证码超时")
+            code = provider.wait_for_code(timeout=120, log=self.log, stop_fn=stop_fn)
+            if not code:
+                raise RuntimeError("任务已停止" if stop_fn and stop_fn() else "等待验证码超时")
             self.log("OK", f"收到验证码: {code}")
 
             self.log("INFO", "Step5 提交验证码完成注册…")
