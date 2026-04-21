@@ -1,0 +1,12 @@
+[
+  {
+    "email": "pqzosgyd@guerrillamailblock.com",
+    "password": "Abc123456",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IlVUIn0.eyJzdWIiOiJkM2JmMWJjNGI2ZDQ0YWFkODIxNDJkMGQ4NTA0MjI4ZiIsImF1ZCI6IiIsImV4cCI6MTgwMjI0NTU2OSwiaWF0IjoxNzc2MzI1NTY5LCJjbGllbnRfaWQiOiJ3ZWIiLCJyZWdpb24iOiJhd3M6YXAtc291dGhlYXN0LTEiLCJhdXRoX21ldGhvZCI6ImVtYWlsX3Bhc3N3b3JkIiwibWZhX21ldGhvZCI6IiJ9.y3n8EfxPD0ErMkhNyTwXjrZDFgpIzxRG0e4hylALaR0",
+    "country": "SG",
+    "env": "正式",
+    "env_url": "https://api.plaud.ai",
+    "status": "SUCCESS",
+    "error": null
+  }
+]

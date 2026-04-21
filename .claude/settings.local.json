@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 *)",
+      "Bash(python *)",
+      "Bash(timeout 5 \"D:/PythonProject1/dist/plaud_register.exe\")",
+      "Bash(timeout 8 \"D:/PythonProject1/dist/plaud_register.exe\")",
+      "Bash(awk '{print \"EXE:\", $NF, \"| Size:\", $5/1024/1024 \"MB\"}')",
+      "Bash(curl -s http://127.0.0.1:5000/)",
+      "Bash(awk '{print \"Size:\", $5/1024/1024 \"MB\"}')",
+      "Bash(timeout 4 \"D:/PythonProject1/dist/plaud_web.exe\")",
+      "Bash(ls -la \"D:/PythonProject1/\"*.exe)",
+      "Bash(awk '{printf \"%-30s %.1f MB\\\\n\", $NF, $5/1024/1024}')",
+      "Bash(echo \"plaud_web.exe busy \\(still running?\\)\" ls -la \"D:/PythonProject1/dist/\"*.exe)",
+      "Bash(awk '{printf \"dist/%-25s %.1f MB\\\\n\", $NF, $5/1024/1024}')"
+    ]
+  }
+}
