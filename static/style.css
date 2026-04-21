@@ -45,7 +45,11 @@ header .badge {
   box-shadow: var(--shadow);
 }
 
-.grid { display: grid; grid-template-columns: 320px 1fr; gap: 16px; align-items: start; }
+.grid { display: grid; grid-template-columns: 320px 1fr; grid-template-rows: 580px 200px; gap: 16px; }
+
+#config-card { overflow-y: auto; }
+#stats-card  { overflow-y: auto; }
+#results-body-wrap { max-height: 360px; overflow-y: auto; }
 
 /* ── Card ── */
 .card {
@@ -176,16 +180,24 @@ select:focus, input:focus {
 .progress-label { font-size: 11px; color: var(--muted); margin-top: 5px; text-align: center; }
 
 /* ── Log panel ── */
-.log-panel { display: flex; flex-direction: column; height: 440px; }
+.log-panel {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
 .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 
 #log-box {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   background: #f8fafc;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px 14px;
-  overflow-y: auto;
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 12.5px;
   line-height: 1.7;
@@ -238,6 +250,12 @@ thead th {
 tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
 tbody tr:hover { background: #f8fafc; }
 td { padding: 10px 14px; font-size: 12.5px; vertical-align: middle; }
+.email-cell {
+  cursor: pointer;
+  transition: color .15s;
+}
+.email-cell:hover { color: var(--accent); }
+
 .token-cell {
   font-family: monospace;
   font-size: 11px;

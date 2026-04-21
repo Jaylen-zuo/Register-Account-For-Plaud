@@ -139,9 +139,10 @@ class MailTMProvider:
         return None
 
 class PlaudRegistrar:
-    def __init__(self, base_url: str, password: str = PASSWORD, log_fn=None):
+    def __init__(self, base_url: str, password: str = PASSWORD, country_override: str = None, log_fn=None):
         self.base = base_url.rstrip("/")
         self.password = password or PASSWORD
+        self.country_override = country_override or None
         self.log = log_fn or (lambda lvl, msg: None)
         self.s = requests.Session()
         did = _devid()
@@ -175,6 +176,8 @@ class PlaudRegistrar:
         d2 = self._get("/user/privacy/location")
         self.country = d2["data"].get("cf_country", self.country)
         self.pv = d2["data"].get("privacy_version", self.pv)
+        if self.country_override:
+            self.country = self.country_override
         self.log("INFO", f"已切换至区域节点，国家: {self.country}")
         return True
 
@@ -193,6 +196,9 @@ class PlaudRegistrar:
             d2 = self._get("/user/privacy/location")
             self.country = d2["data"].get("cf_country", "SG")
             self.pv = d2["data"].get("privacy_version", 1)
+            if self.country_override:
+                self.country = self.country_override
+                self.log("INFO", f"使用指定国家: {self.country}")
             result["country"] = self.country
 
             self.log("INFO", f"Step3 发送验证码到 {email}…")

@@ -1,14 +1,48 @@
 let taskId = null, es = null, allResults = [], running = false, resultsOpen = true;
 
+const STORAGE_KEY = 'plaud_results';
+
+function saveResults() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(allResults)); } catch (e) {}
+}
+
+function restoreResults() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    if (!Array.isArray(data) || data.length === 0) return;
+    allResults = data;
+    data.forEach((r, i) => addResultRow(r, i + 1));
+    document.getElementById('result-count').textContent = allResults.length + ' 条';
+    document.getElementById('results-card').style.display = 'block';
+    document.getElementById('results-body-wrap').style.display = resultsOpen ? 'block' : 'none';
+    document.getElementById('results-toggle').textContent = resultsOpen ? '收起' : '展开';
+    updateStats();
+  } catch (e) {}
+}
+
+function clearAllResults() {
+  allResults = [];
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('result-body').innerHTML = '';
+  document.getElementById('result-count').textContent = '0 条';
+  document.getElementById('results-card').style.display = 'none';
+  updateStats();
+  toast('记录已清空');
+}
+
+document.addEventListener('DOMContentLoaded', restoreResults);
+
 async function startTask() {
   const cfg = {
     env:      document.getElementById('env').value,
     provider: document.getElementById('provider').value,
+    country:  document.getElementById('country').value,
     count:    parseInt(document.getElementById('count').value) || 1,
     password: document.getElementById('password').value.trim() || 'Abc123456',
   };
   clearLogs();
-  document.getElementById('stats-card').style.display = 'none';
   setBusy(true);
 
   const res = await fetch('/api/start', {
@@ -39,6 +73,7 @@ function handleEvent(d) {
     document.getElementById('progress-label').textContent = `账号 ${d.current} / ${d.total}`;
   } else if (d.type === 'result') {
     allResults.push(d.result);
+    saveResults();
     addResultRow(d.result, allResults.length);
     document.getElementById('result-count').textContent = allResults.length + ' 条';
     document.getElementById('results-card').style.display = 'block';
@@ -76,13 +111,14 @@ function addResultRow(r, idx) {
   const tokShort = tok.length > 40 ? tok.slice(0, 40) + '…' : (tok || 'N/A');
   tr.innerHTML = `
     <td style="color:var(--muted)">${idx}</td>
-    <td>${escHtml(r.email)}</td>
+    <td style="color:var(--muted);font-size:11px;white-space:nowrap">${escHtml(r.time || '')}</td>
+    <td class="email-cell" onclick="copyText('${r.email}')" title="点击复制">${escHtml(r.email)}</td>
     <td><span style="font-family:monospace">${r.password}</span></td>
     <td class="token-cell" title="${escHtml(tok)}" onclick="copyText('${tok}')">${escHtml(tokShort)}</td>
     <td>${r.country || 'N/A'}</td>
     <td>${r.env || 'N/A'}</td>
     <td>${r.status === 'SUCCESS' ? '<span class="badge-ok">SUCCESS</span>' : '<span class="badge-fail">FAILED</span>'}</td>`;
-  tb.appendChild(tr);
+  tb.insertBefore(tr, tb.firstChild);
 }
 
 function updateStats() {
@@ -93,7 +129,6 @@ function updateStats() {
   document.getElementById('s-ok').textContent    = ok;
   document.getElementById('s-fail').textContent  = fail;
   document.getElementById('s-rate').textContent  = total ? Math.round(ok / total * 100) + '%' : '0%';
-  document.getElementById('stats-card').style.display = total > 0 ? 'block' : 'none';
 }
 
 function setBusy(on) {
@@ -118,7 +153,7 @@ function exportJSON() {
 }
 
 function copyText(t) {
-  navigator.clipboard.writeText(t).then(() => toast('Token 已复制'));
+  navigator.clipboard.writeText(t).then(() => toast('已复制到剪贴板'));
 }
 
 function toast(msg) {

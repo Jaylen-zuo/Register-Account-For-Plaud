@@ -19,6 +19,7 @@ def run_task(task_id: str, cfg: dict):
     count = max(1, int(cfg.get("count", 1)))
     use_guerrilla = cfg.get("provider", "guerrilla") != "mailtm"
     password = cfg.get("password", PASSWORD) or PASSWORD
+    country_override = cfg.get("country") or None
 
     def is_stopped(): return bool(_tasks[task_id].get("stop"))
 
@@ -34,7 +35,7 @@ def run_task(task_id: str, cfg: dict):
         log("INFO", f"── 账号 {idx+1}/{count} ─────────────────────")
 
         provider = GuerrillaMailProvider() if use_guerrilla else MailTMProvider()
-        registrar = PlaudRegistrar(base_url, password=password, log_fn=log)
+        registrar = PlaudRegistrar(base_url, password=password, country_override=country_override, log_fn=log)
 
         try:
             log("INFO", "获取临时邮箱地址…")
@@ -46,12 +47,14 @@ def run_task(task_id: str, cfg: dict):
                 "email": "N/A", "password": password, "token": None,
                 "country": "N/A", "env": "测试" if "dev" in base_url else "正式",
                 "status": "FAILED", "error": str(e),
+                "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             }
             results.append(result)
             send("result", result=result)
             continue
 
         result = registrar.register(email, provider, stop_fn=is_stopped)
+        result["time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         results.append(result)
         send("result", result=result)
 

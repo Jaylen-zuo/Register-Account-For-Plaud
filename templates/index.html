@@ -17,79 +17,78 @@
 
   <div class="grid">
 
-    <!-- Left: Config panel -->
-    <div>
-      <div class="card">
-        <div class="card-title">运行配置</div>
+    <!-- (1,1) 运行配置 -->
+    <div class="card" id="config-card">
+      <div class="card-title">运行配置</div>
 
-        <div class="field">
-          <label>运行环境</label>
-          <select id="env">
-            <option value="test">🧪 测试环境 (api-dev.plaud.ai)</option>
-            <option value="prod" selected>🚀 正式环境 (api.plaud.ai)</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>临时邮箱提供商</label>
-          <select id="provider">
-            <option value="guerrilla">Guerrilla Mail（主力，稳定无限速）</option>
-            <option value="mailtm">mail.tm（备用，有并发速率限制）</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>注册账号数量</label>
-          <input type="number" id="count" value="1" min="1" max="50">
-        </div>
-
-        <div class="field">
-          <label>注册密码</label>
-          <input type="text" id="password" value="Abc123456" placeholder="请输入密码">
-        </div>
-
-        <div style="margin-top:20px">
-          <button class="btn btn-primary" id="start-btn" onclick="startTask()">
-            <span id="btn-icon">▶</span>
-            <span id="btn-text">开始注册</span>
-          </button>
-          <button class="btn btn-stop" id="stop-btn" style="display:none;margin-top:8px" onclick="stopTask()">
-            ⏹ 停止任务
-          </button>
-        </div>
-
-        <div id="progress-wrap" style="display:none;margin-top:16px">
-          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-          <div class="progress-label" id="progress-label">准备中…</div>
-        </div>
+      <div class="field">
+        <label>运行环境</label>
+        <select id="env">
+          <option value="test">测试环境 (api-dev.plaud.ai)</option>
+          <option value="prod" selected>正式环境 (api.plaud.ai)</option>
+        </select>
       </div>
 
-      <!-- Stats card -->
-      <div class="card" id="stats-card" style="margin-top:16px;display:none">
-        <div class="card-title">执行统计</div>
-        <div class="stats">
-          <div class="stat-card">
-            <div class="stat-num" id="s-total">0</div>
-            <div class="stat-label">总计</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num stat-ok" id="s-ok">0</div>
-            <div class="stat-label">成功</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num stat-fail" id="s-fail">0</div>
-            <div class="stat-label">失败</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num stat-accent" id="s-rate">0%</div>
-            <div class="stat-label">成功率</div>
-          </div>
-        </div>
-        <button class="btn btn-export btn-sm" onclick="exportJSON()">⬇ 导出 JSON</button>
+      <div class="field">
+        <label>临时邮箱提供商</label>
+        <select id="provider">
+          <option value="guerrilla">Guerrilla Mail（主力，稳定无限速）</option>
+          <option value="mailtm">mail.tm（备用，有并发速率限制）</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>注册国家</label>
+        <select id="country">
+          <option value="">自动检测</option>
+          <option value="SG">SG — 新加坡</option>
+          <option value="US">US — 美国</option>
+          <option value="JP">JP — 日本</option>
+          <option value="KR">KR — 韩国</option>
+          <option value="GB">GB — 英国</option>
+          <option value="DE">DE — 德国</option>
+          <option value="FR">FR — 法国</option>
+          <option value="AU">AU — 澳大利亚</option>
+          <option value="CA">CA — 加拿大</option>
+          <option value="IN">IN — 印度</option>
+          <option value="BR">BR — 巴西</option>
+          <option value="MX">MX — 墨西哥</option>
+          <option value="ID">ID — 印度尼西亚</option>
+          <option value="TH">TH — 泰国</option>
+          <option value="VN">VN — 越南</option>
+          <option value="PH">PH — 菲律宾</option>
+          <option value="MY">MY — 马来西亚</option>
+          <option value="other">other — 其他</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>注册账号数量</label>
+        <input type="number" id="count" value="1" min="1" max="50">
+      </div>
+
+      <div class="field">
+        <label>注册密码</label>
+        <input type="text" id="password" value="Abc123456" placeholder="请输入密码">
+      </div>
+
+      <div style="margin-top:20px">
+        <button class="btn btn-primary" id="start-btn" onclick="startTask()">
+          <span id="btn-icon">▶</span>
+          <span id="btn-text">开始注册</span>
+        </button>
+        <button class="btn btn-stop" id="stop-btn" style="display:none;margin-top:8px" onclick="stopTask()">
+          ⏹ 停止任务
+        </button>
+      </div>
+
+      <div id="progress-wrap" style="display:none;margin-top:16px">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-label" id="progress-label">准备中…</div>
       </div>
     </div>
 
-    <!-- Right: Log panel -->
+    <!-- (1-2, 2) 执行日志 — 跨两行 -->
     <div class="card log-panel">
       <div class="log-header">
         <div class="card-title" style="margin-bottom:0">执行日志</div>
@@ -98,23 +97,50 @@
       <div id="log-box"><div class="log-placeholder">等待任务启动…</div></div>
     </div>
 
+    <!-- (2,1) 执行统计 -->
+    <div class="card" id="stats-card">
+      <div class="card-title">执行统计</div>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-num" id="s-total">0</div>
+          <div class="stat-label">总计</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num stat-ok" id="s-ok">0</div>
+          <div class="stat-label">成功</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num stat-fail" id="s-fail">0</div>
+          <div class="stat-label">失败</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num stat-accent" id="s-rate">0%</div>
+          <div class="stat-label">成功率</div>
+        </div>
+      </div>
+      <button class="btn btn-export btn-sm" onclick="exportJSON()">⬇ 导出 JSON</button>
+    </div>
+
   </div>
 
-  <!-- Results table -->
+  <!-- 注册记录 — 最下方全宽 -->
   <div class="card" id="results-card" style="margin-top:16px;display:none">
     <div class="results-header">
       <div class="card-title" style="margin-bottom:0">
         注册记录
         <span class="result-count" id="result-count">0 条</span>
       </div>
-      <button class="btn btn-sm btn-toggle" id="results-toggle" onclick="toggleResults()">收起</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm btn-clear" onclick="clearAllResults()">清空记录</button>
+        <button class="btn btn-sm btn-toggle" id="results-toggle" onclick="toggleResults()">收起</button>
+      </div>
     </div>
     <div id="results-body-wrap" style="display:none;margin-top:14px">
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>#</th><th>邮箱</th><th>密码</th><th>Token</th>
+              <th>#</th><th>注册时间</th><th>邮箱</th><th>密码</th><th>Token</th>
               <th>国家</th><th>环境</th><th>状态</th>
             </tr>
           </thead>
