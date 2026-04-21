@@ -1,15 +1,20 @@
-let taskId = null, es = null, allResults = [], running = false;
+let taskId = null, es = null, allResults = [], running = false, resultsOpen = false;
 
 async function startTask() {
   const cfg = {
     env:      document.getElementById('env').value,
     provider: document.getElementById('provider').value,
     count:    parseInt(document.getElementById('count').value) || 1,
+    password: document.getElementById('password').value.trim() || 'Abc123456',
   };
   clearLogs();
   allResults = [];
+  resultsOpen = false;
   document.getElementById('result-body').innerHTML = '';
   document.getElementById('results-card').style.display = 'none';
+  document.getElementById('results-body-wrap').style.display = 'none';
+  document.getElementById('results-toggle').textContent = '展开';
+  document.getElementById('result-count').textContent = '0 条';
   document.getElementById('stats-card').style.display = 'none';
   setBusy(true);
 
@@ -42,6 +47,7 @@ function handleEvent(d) {
   } else if (d.type === 'result') {
     allResults.push(d.result);
     addResultRow(d.result, allResults.length);
+    document.getElementById('result-count').textContent = allResults.length + ' 条';
     document.getElementById('results-card').style.display = 'block';
   } else if (d.type === 'start') {
     document.getElementById('env-badge').textContent = `${d.env} | ${d.provider}`;
@@ -122,6 +128,12 @@ function toast(msg) {
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function toggleResults() {
+  resultsOpen = !resultsOpen;
+  document.getElementById('results-body-wrap').style.display = resultsOpen ? 'block' : 'none';
+  document.getElementById('results-toggle').textContent = resultsOpen ? '收起' : '展开';
 }
 
 function escHtml(s) {

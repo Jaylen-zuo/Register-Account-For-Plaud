@@ -15,9 +15,10 @@ def run_task(task_id: str, cfg: dict):
     def send(t, **kw): q.put({"type": t, **kw})
     def log(lvl, msg): send("log", level=lvl, msg=msg, time=datetime.now().strftime("%H:%M:%S"))
 
-    env_label, base_url = ENVS.get(cfg["env"], ENVS["test"])
+    env_label, base_url = ENVS.get(cfg["env"], ENVS["prod"])
     count = max(1, int(cfg.get("count", 1)))
     use_guerrilla = cfg.get("provider", "guerrilla") != "mailtm"
+    password = cfg.get("password", PASSWORD) or PASSWORD
 
     send("start", total=count, env=env_label, provider="Guerrilla Mail" if use_guerrilla else "mail.tm")
     log("INFO", f"开始注册 {count} 个账号 | 环境: {env_label}")
@@ -31,7 +32,7 @@ def run_task(task_id: str, cfg: dict):
         log("INFO", f"── 账号 {idx+1}/{count} ─────────────────────")
 
         provider = GuerrillaMailProvider() if use_guerrilla else MailTMProvider()
-        registrar = PlaudRegistrar(base_url, log_fn=log)
+        registrar = PlaudRegistrar(base_url, password=password, log_fn=log)
 
         try:
             log("INFO", "获取临时邮箱地址…")
@@ -40,7 +41,7 @@ def run_task(task_id: str, cfg: dict):
         except Exception as e:
             log("ERR", f"获取邮箱失败: {e}")
             result = {
-                "email": "N/A", "password": PASSWORD, "token": None,
+                "email": "N/A", "password": password, "token": None,
                 "country": "N/A", "env": "测试" if "dev" in base_url else "正式",
                 "status": "FAILED", "error": str(e),
             }

@@ -137,15 +137,16 @@ class MailTMProvider:
         return None
 
 class PlaudRegistrar:
-    def __init__(self, base_url: str, log_fn=None):
+    def __init__(self, base_url: str, password: str = PASSWORD, log_fn=None):
         self.base = base_url.rstrip("/")
+        self.password = password or PASSWORD
         self.log = log_fn or (lambda lvl, msg: None)
         self.s = requests.Session()
         did = _devid()
         self.s.headers.update({**_HEADERS, "x-device-id": did, "x-pld-tag": did})
         self.pub_key = self.access_token = None
         self.country, self.pv = "SG", 1
-        self._pw_val, self._pw_enc = PASSWORD, True
+        self._pw_val, self._pw_enc = self.password, True
 
     def _xid(self): return {"X-Request-ID": _rstr(11)}
 
@@ -177,7 +178,7 @@ class PlaudRegistrar:
 
     def register(self, email: str, provider) -> dict:
         result = {
-            "email": email, "password": PASSWORD, "token": None,
+            "email": email, "password": self.password, "token": None,
             "country": "N/A", "env": "测试" if "dev" in self.base else "正式",
             "status": "FAILED", "error": None,
         }
@@ -207,7 +208,7 @@ class PlaudRegistrar:
             self.log("OK", f"收到验证码: {code}")
 
             self.log("INFO", "Step5 提交验证码完成注册…")
-            enc_pw, is_enc = encrypt_password(PASSWORD, self.pub_key)
+            enc_pw, is_enc = encrypt_password(self.password, self.pub_key)
             try:
                 d5 = self._post("/auth/verify-code", json={"code": code, "token": jwt, "password": enc_pw, "password_encrypted": is_enc, "user_area": self.country, "r": random.random()})
                 if d5.get("status") == 0:
@@ -216,14 +217,14 @@ class PlaudRegistrar:
                     raise RuntimeError(str(d5))
             except Exception as e:
                 self.log("WARN", f"加密密码失败({e})，尝试明文…")
-                d5 = self._post("/auth/verify-code", json={"code": code, "token": jwt, "password": PASSWORD, "password_encrypted": False, "user_area": self.country, "r": random.random()})
+                d5 = self._post("/auth/verify-code", json={"code": code, "token": jwt, "password": self.password, "password_encrypted": False, "user_area": self.country, "r": random.random()})
                 if d5.get("status") != 0: raise RuntimeError(f"verify-code: {d5}")
-                self._pw_val, self._pw_enc = PASSWORD, False
+                self._pw_val, self._pw_enc = self.password, False
             self.log("OK", "注册成功！")
 
             self.log("INFO", "Step6 提交隐私协议（注册前）…")
             try:
-                self._post("/user/privacy/agreement", json={"country": "other", "privacy_version": "", "is_marketing_agreement": False, "source": "web", "email": email, "password": PASSWORD, "password_encrypted": True, "r": random.random()})
+                self._post("/user/privacy/agreement", json={"country": "other", "privacy_version": "", "is_marketing_agreement": False, "source": "web", "email": email, "password": self.password, "password_encrypted": True, "r": random.random()})
             except Exception as e:
                 self.log("WARN", f"隐私协议(注册前)异常(可忽略): {e}")
 

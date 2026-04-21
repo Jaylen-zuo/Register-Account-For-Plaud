@@ -268,6 +268,33 @@ td { padding: 10px 14px; font-size: 12.5px; vertical-align: middle; }
   font-weight: 700;
 }
 
+/* ── Results header ── */
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.result-count {
+  display: inline-block;
+  background: rgba(79,126,248,.1);
+  color: var(--accent);
+  border: 1px solid rgba(79,126,248,.2);
+  border-radius: 20px;
+  padding: 1px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.btn-toggle {
+  background: var(--surface2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  min-width: 52px;
+}
+.btn-toggle:hover { background: #e2e8f0; }
+
 /* ── Toast ── */
 .toast {
   position: fixed;
