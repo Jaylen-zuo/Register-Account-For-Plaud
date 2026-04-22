@@ -14,7 +14,7 @@ if sys.platform == "win32":
         ctypes.windll.kernel32.SetConsoleCP(65001)
     except Exception: pass
 
-import time, json, queue, socket, threading
+import time, json, queue, threading
 from flask import Flask, Response, request, jsonify, render_template
 from tasks import _tasks, run_task
 
@@ -78,13 +78,6 @@ def api_stop(task_id):
     return jsonify({"ok": True})
 
 
-def find_free_port(start=5000) -> int:
-    for port in range(start, start + 100):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            if s.connect_ex(("127.0.0.1", port)) != 0:
-                return port
-    return start
-
 
 def open_browser(port: int):
     import webbrowser
@@ -93,9 +86,9 @@ def open_browser(port: int):
 
 
 if __name__ == "__main__":
-    port = find_free_port(5000)
+    port = 5000
     print(f"\n Plaud 自动注册工具 — Web UI")
     print(f" 浏览器访问: http://127.0.0.1:{port}")
     print(f" 按 Ctrl+C 退出\n")
     threading.Thread(target=open_browser, args=(port,), daemon=True).start()
-    app.run(host="127.0.0.1", port=port, debug=False, threaded=True)
+    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
